@@ -18,3 +18,7 @@ the `releases` folder. Afterwards you can run the program again with:
 ```
 
 Close the window to exit the program.
+
+## GitHub Releases
+
+Push a tag starting with `v` (for example `v1.0.0`) to trigger the GitHub Actions workflow. The workflow compiles the executable and attaches `raytracer.exe` to the release.
