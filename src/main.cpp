@@ -1,5 +1,6 @@
 #include <SDL2/SDL.h>
 #include <iostream>
+#include <algorithm>
 #include "renderer.h"
 
 int main() {
