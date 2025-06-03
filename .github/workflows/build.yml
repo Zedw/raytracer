@@ -1,3 +1,5 @@
+name: Build and Release
+
 on:
   push:
     tags:
@@ -11,21 +13,45 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
+
     steps:
       - uses: actions/checkout@v4
-      - name: Install SDL2 and MinGW
-        run: sudo apt-get update && sudo apt-get install -y libsdl2-dev mingw-w64
-      - name: Build
-        run: make CXX=x86_64-w64-mingw32-g++ SDL_CONFIG=x86_64-w64-mingw32-sdl2-config copy-release
-      - name: Upload artifact
+
+      - name: Install MinGW
+        run: sudo apt-get update && sudo apt-get install -y mingw-w64 wget tar
+
+      - name: Download SDL2 for Windows
+        run: |
+          mkdir -p deps
+          wget https://github.com/libsdl-org/SDL/releases/download/release-2.30.2/SDL2-devel-2.30.2-mingw.tar.gz
+          tar -xzf SDL2-devel-2.30.2-mingw.tar.gz -C deps
+
+      - name: Build for Windows with MinGW
+        run: |
+          make \
+            CXX=x86_64-w64-mingw32-g++ \
+            SDL_CONFIG="echo" \
+            CXXFLAGS="-I$(pwd)/deps/SDL2-2.30.2/x86_64-w64-mingw32/include" \
+            LDFLAGS="-L$(pwd)/deps/SDL2-2.30.2/x86_64-w64-mingw32/lib -lmingw32 -lSDL2main -lSDL2 -mwindows" \
+            copy-release
+
+      - name: Copy SDL2.dll to release folder
+        run: cp deps/SDL2-2.30.2/x86_64-w64-mingw32/bin/SDL2.dll releases/
+
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: raytracer
-          path: releases/raytracer.exe
-      - name: Release
+          path: |
+            releases/raytracer.exe
+            releases/SDL2.dll
+
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.event.inputs.tag_name || github.ref_name }}
-          files: releases/raytracer.exe
+          files: |
+            releases/raytracer.exe
+            releases/SDL2.dll
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
