@@ -2,19 +2,30 @@
 
 This project is a very small example ray tracer implemented in C++. It now opens an SDL2 window showing a reflective sphere hovering above a floor.
 
-## Building and running
+## Dependencies
 
-This project uses a small `Makefile`. Ensure SDL2 is installed and simply run:
+The project depends on SDL2. On Debian based distributions you can install the
+development libraries together with the MinGW toolchain for cross compilation:
 
 ```bash
-make
+sudo apt-get update
+sudo apt-get install -y libsdl2-dev mingw-w64
 ```
 
-The command compiles `raytracer.exe`, launches it, and copies the executable to
-the `releases` folder. Afterwards you can run the program again with:
+## Building and running
+
+The provided `Makefile` supports building both natively and with MinGW. To
+produce a Windows executable on Linux run:
 
 ```bash
-./raytracer.exe
+make CXX=x86_64-w64-mingw32-g++ SDL_CONFIG=x86_64-w64-mingw32-sdl2-config
+```
+
+The command compiles `raytracer.exe` and copies it to the `releases` folder.
+You can run the program on Windows or with Wine:
+
+```bash
+wine ./raytracer.exe
 ```
 
 Close the window to exit the program.
