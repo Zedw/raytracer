@@ -1,6 +1,9 @@
-CXX = g++
-CXXFLAGS = -std=c++17
-LDFLAGS = -lSDL2
+# C++ compiler and SDL configuration tool can be overridden from the command
+# line to enable cross compilation with MinGW.
+CXX ?= g++
+SDL_CONFIG ?= sdl2-config
+CXXFLAGS = -std=c++17 $(shell $(SDL_CONFIG) --cflags)
+LDFLAGS = $(shell $(SDL_CONFIG) --libs)
 SRCS = $(wildcard src/*.cpp)
 TARGET = raytracer.exe
 
