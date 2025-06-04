@@ -4,13 +4,23 @@
 #include "sphere.h"
 #include "plane.h"
 #include <cmath>
+#include <algorithm>
 
 struct Scene {
     Sphere sphere;
     Plane plane;
     Vec3 lightDir;
     Vec3 lightColor;
+    double time = 0.0;
 };
+
+inline Vec3 sky(const Vec3& dir, double time) {
+    double t = 0.5 * (dir.y + 1.0);
+    double cloud = std::sin(dir.x * 5.0 + time) * std::sin(dir.z * 5.0 + time*0.7);
+    double mask = std::clamp(cloud, 0.0, 1.0);
+    Vec3 base = Vec3(0.2, 0.5, 1.0) * t + Vec3(0.0, 0.1, 0.2) * (1.0 - t);
+    return base + Vec3(1,1,1) * mask * 0.5;
+}
 
 inline bool occluded(const Ray& shadowRay, const Scene& scene) {
     double tS, tP; Vec3 n;
@@ -20,7 +30,7 @@ inline bool occluded(const Ray& shadowRay, const Scene& scene) {
 }
 
 inline Vec3 trace(const Ray& ray, const Scene& scene, int depth = 2) {
-    if (depth == 0) return Vec3(0.2, 0.7, 1.0); // sky color
+    if (depth == 0) return sky(ray.direction, scene.time);
 
     double tSphere, tPlane;
     Vec3 nSphere, nPlane;
@@ -42,7 +52,7 @@ inline Vec3 trace(const Ray& ray, const Scene& scene, int depth = 2) {
     }
 
     if (t == std::numeric_limits<double>::max()) {
-        return Vec3(0.2, 0.7, 1.0); // sky
+        return sky(ray.direction, scene.time);
     }
 
     Vec3 hitPoint = ray.origin + ray.direction * t;
