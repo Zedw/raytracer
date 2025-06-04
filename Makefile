@@ -6,7 +6,7 @@ LDFLAGS ?= $(shell $(SDL_CONFIG) --libs)
 SRCS = $(wildcard src/*.cpp)
 IMGUI_SRCS = $(wildcard external/imgui/*.cpp) \
             $(wildcard external/imgui/backends/*.cpp)
-INCLUDES = -Iexternal/imgui -Iexternal/imgui/backends
+INCLUDES = -Iinclude -Iexternal/imgui -Iexternal/imgui/backends
 TARGET = raytracer.exe
 
 all: $(TARGET) run copy-release
