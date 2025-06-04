@@ -33,6 +33,7 @@ Use the arrow keys to move the camera horizontally and forward/backward. Press
 `Q` to raise the camera, `E` to lower it, and `W`/`S` to pitch the camera up or
 down.
 
+
 ## GitHub Releases
 
 Push a tag starting with `v` (for example `v1.0.0`) to trigger the GitHub Actions workflow. The workflow compiles the executable and attaches `raytracer.exe` to the release.

@@ -65,6 +65,7 @@ int main(int argc, char* argv[]) {
     };
 
     render(camera, pitch);
+
     SDL_Event e;
     bool quit = false;
     const double step = 0.1;
@@ -83,6 +84,7 @@ int main(int argc, char* argv[]) {
                 case SDLK_e:     camera.y -= step; redraw = true; break;
                 case SDLK_w:     pitch += 0.05; redraw = true; break;
                 case SDLK_s:     pitch -= 0.05; redraw = true; break;
+
                 case SDLK_ESCAPE: quit = true; break;
                 default: break;
                 }
@@ -90,6 +92,7 @@ int main(int argc, char* argv[]) {
         }
         if (redraw) {
             render(camera, pitch);
+
             redraw = false;
         }
         SDL_Delay(16);
