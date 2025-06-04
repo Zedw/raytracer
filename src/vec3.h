@@ -9,6 +9,7 @@ struct Vec3 {
     Vec3 operator+(const Vec3& v) const { return Vec3(x+v.x, y+v.y, z+v.z); }
     Vec3 operator-(const Vec3& v) const { return Vec3(x-v.x, y-v.y, z-v.z); }
     Vec3 operator*(double s) const { return Vec3(x*s, y*s, z*s); }
+    Vec3 operator*(const Vec3& v) const { return Vec3(x*v.x, y*v.y, z*v.z); }
     Vec3 operator/(double s) const { return Vec3(x/s, y/s, z/s); }
 };
 
@@ -23,6 +24,14 @@ inline double dot(const Vec3& a, const Vec3& b) {
 
 inline Vec3 reflect(const Vec3& v, const Vec3& n) {
     return v - n * (2.0 * dot(v, n));
+}
+
+inline Vec3 cross(const Vec3& a, const Vec3& b) {
+    return Vec3(
+        a.y * b.z - a.z * b.y,
+        a.z * b.x - a.x * b.z,
+        a.x * b.y - a.y * b.x
+    );
 }
 
 #endif // VEC3_H

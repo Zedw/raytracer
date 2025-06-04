@@ -1,6 +1,7 @@
 #include <SDL2/SDL.h>
 #include <iostream>
 #include <algorithm>
+#include <cmath>
 #include "renderer.h"
 
 int main(int argc, char* argv[]) {
@@ -31,34 +32,65 @@ int main(int argc, char* argv[]) {
     Scene scene;
     scene.sphere = Sphere(Vec3(0,0,-3), 0.5, Material(Vec3(1,0,0), 0.7));
     scene.plane = Plane(Vec3(0,-0.5,-3), Vec3(0,1,0), Material(Vec3(0.8,0.8,0.8), 0.2));
+    scene.lightDir = normalize(Vec3(-0.5, 1.0, -0.5));
+    scene.lightColor = Vec3(1.0, 1.0, 0.9);
 
     Vec3 camera(0,0,0);
-    double viewport_height = 2.0;
-    double viewport_width = viewport_height * (double)width / (double)height;
-    Vec3 horizontal(viewport_width, 0, 0);
-    Vec3 vertical(0, viewport_height, 0);
-    Vec3 lower_left_corner = camera - horizontal/2 - vertical/2 - Vec3(0,0,1);
+    double pitch = 0.0;
 
-    Uint32* pixels = static_cast<Uint32*>(surface->pixels);
-    for (int j = 0; j < height; ++j) {
-        for (int i = 0; i < width; ++i) {
-            double u = (double)i / (width-1);
-            double v = (double)(height-1-j) / (height-1);
-            Ray r(camera, lower_left_corner + horizontal*u + vertical*v - camera);
-            Vec3 color = trace(r, scene);
-            int ir = static_cast<int>(255.999 * std::clamp(color.x, 0.0, 1.0));
-            int ig = static_cast<int>(255.999 * std::clamp(color.y, 0.0, 1.0));
-            int ib = static_cast<int>(255.999 * std::clamp(color.z, 0.0, 1.0));
-            pixels[j*surface->w + i] = SDL_MapRGB(surface->format, ir, ig, ib);
+    auto render = [&](const Vec3& cam, double angle){
+        double viewport_height = 2.0;
+        double viewport_width = viewport_height * (double)width / (double)height;
+        Vec3 forward(0, std::sin(angle), -std::cos(angle));
+        Vec3 right(1,0,0);
+        Vec3 up = normalize(cross(right, forward));
+        Vec3 horizontal = right * viewport_width;
+        Vec3 vertical = up * viewport_height;
+        Vec3 lower_left_corner = cam + forward - horizontal/2 - vertical/2;
+
+        Uint32* pixels = static_cast<Uint32*>(surface->pixels);
+        for (int j = 0; j < height; ++j) {
+            for (int i = 0; i < width; ++i) {
+                double u = (double)i / (width-1);
+                double v = (double)(height-1-j) / (height-1);
+                Ray r(cam, lower_left_corner + horizontal*u + vertical*v - cam);
+                Vec3 color = trace(r, scene);
+                int ir = static_cast<int>(255.999 * std::clamp(color.x, 0.0, 1.0));
+                int ig = static_cast<int>(255.999 * std::clamp(color.y, 0.0, 1.0));
+                int ib = static_cast<int>(255.999 * std::clamp(color.z, 0.0, 1.0));
+                pixels[j*surface->w + i] = SDL_MapRGB(surface->format, ir, ig, ib);
+            }
         }
-    }
+        SDL_UpdateWindowSurface(window);
+    };
 
-    SDL_UpdateWindowSurface(window);
+    render(camera, pitch);
     SDL_Event e;
     bool quit = false;
+    const double step = 0.1;
+    bool redraw = false;
     while (!quit) {
         while (SDL_PollEvent(&e)) {
-            if (e.type == SDL_QUIT) quit = true;
+            if (e.type == SDL_QUIT) {
+                quit = true;
+            } else if (e.type == SDL_KEYDOWN) {
+                switch (e.key.keysym.sym) {
+                case SDLK_LEFT:  camera.x -= step; redraw = true; break;
+                case SDLK_RIGHT: camera.x += step; redraw = true; break;
+                case SDLK_UP:    camera.z -= step; redraw = true; break;
+                case SDLK_DOWN:  camera.z += step; redraw = true; break;
+                case SDLK_q:     camera.y += step; redraw = true; break;
+                case SDLK_e:     camera.y -= step; redraw = true; break;
+                case SDLK_w:     pitch += 0.05; redraw = true; break;
+                case SDLK_s:     pitch -= 0.05; redraw = true; break;
+                case SDLK_ESCAPE: quit = true; break;
+                default: break;
+                }
+            }
+        }
+        if (redraw) {
+            render(camera, pitch);
+            redraw = false;
         }
         SDL_Delay(16);
     }
