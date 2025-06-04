@@ -1,6 +1,6 @@
 # raytracer
 
-This project is a very small example ray tracer implemented in C++. It now opens an SDL2 window showing a reflective sphere hovering above a floor.
+This project is a very small example ray tracer implemented in C++. It now opens an SDL2 window showing a reflective sphere hovering above a floor. A directional "sun" lights the scene and objects cast smooth shadows.
 
 ## Dependencies
 
@@ -30,7 +30,9 @@ wine ./raytracer.exe
 
 Close the window to exit the program.
 Use the arrow keys to move the camera horizontally and forward/backward. Press
-`Q` to raise the camera and `E` to lower it.
+`Q` to raise the camera, `E` to lower it, and `W`/`S` to pitch the camera up or
+down.
+
 
 ## GitHub Releases
 
