@@ -3,7 +3,8 @@
 #include <algorithm>
 #include "renderer.h"
 
-int main() {
+int main(int argc, char* argv[]) {
+    (void)argc; (void)argv; // unused
     const int width = 400;
     const int height = 300;
 
