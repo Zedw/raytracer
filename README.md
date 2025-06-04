@@ -29,9 +29,9 @@ wine ./raytracer.exe
 ```
 
 Close the window to exit the program.
-Use the arrow keys to move the camera horizontally and forward/backward. Press
-`Q` to raise the camera, `E` to lower it, and `W`/`S` to pitch the camera up or
-down.
+Use `W`, `A`, `S`, `D` to move forward, left, back and right relative to the
+current view. `Q` moves up, `E` moves down. Hold multiple keys at once to move
+diagonally. Look around with the arrow keys (`←`/`→` yaw, `↑`/`↓` pitch).
 
 
 ## GitHub Releases
