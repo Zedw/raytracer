@@ -36,14 +36,18 @@ int main(int argc, char* argv[]) {
     scene.lightColor = Vec3(1.0, 1.0, 0.9);
 
     Vec3 camera(0,0,0);
+    double yaw = 0.0;
     double pitch = 0.0;
 
-    auto render = [&](const Vec3& cam, double angle){
+    auto render = [&](const Vec3& cam, double yawAngle, double pitchAngle){
         double viewport_height = 2.0;
         double viewport_width = viewport_height * (double)width / (double)height;
-        Vec3 forward(0, std::sin(angle), -std::cos(angle));
-        Vec3 right(1,0,0);
-        Vec3 up = normalize(cross(right, forward));
+        Vec3 forward(
+            std::cos(pitchAngle) * std::sin(yawAngle),
+            std::sin(pitchAngle),
+            -std::cos(pitchAngle) * std::cos(yawAngle));
+        Vec3 right = normalize(cross(Vec3(0,1,0), forward));
+        Vec3 up = cross(forward, right);
         Vec3 horizontal = right * viewport_width;
         Vec3 vertical = up * viewport_height;
         Vec3 lower_left_corner = cam + forward - horizontal/2 - vertical/2;
@@ -64,38 +68,57 @@ int main(int argc, char* argv[]) {
         SDL_UpdateWindowSurface(window);
     };
 
-    render(camera, pitch);
+    render(camera, yaw, pitch);
 
     SDL_Event e;
     bool quit = false;
-    const double step = 0.1;
-    bool redraw = false;
+    const double moveSpeed = 2.0;
+    const double rotateSpeed = 1.5;
+    Uint32 lastTicks = SDL_GetTicks();
     while (!quit) {
         while (SDL_PollEvent(&e)) {
             if (e.type == SDL_QUIT) {
                 quit = true;
-            } else if (e.type == SDL_KEYDOWN) {
-                switch (e.key.keysym.sym) {
-                case SDLK_LEFT:  camera.x -= step; redraw = true; break;
-                case SDLK_RIGHT: camera.x += step; redraw = true; break;
-                case SDLK_UP:    camera.z -= step; redraw = true; break;
-                case SDLK_DOWN:  camera.z += step; redraw = true; break;
-                case SDLK_q:     camera.y += step; redraw = true; break;
-                case SDLK_e:     camera.y -= step; redraw = true; break;
-                case SDLK_w:     pitch += 0.05; redraw = true; break;
-                case SDLK_s:     pitch -= 0.05; redraw = true; break;
-
-                case SDLK_ESCAPE: quit = true; break;
-                default: break;
-                }
             }
         }
-        if (redraw) {
-            render(camera, pitch);
 
-            redraw = false;
+        Uint32 current = SDL_GetTicks();
+        double dt = (current - lastTicks) / 1000.0;
+        lastTicks = current;
+
+        const Uint8* state = SDL_GetKeyboardState(NULL);
+        if (state[SDL_SCANCODE_ESCAPE]) quit = true;
+
+        Vec3 forward(
+            std::cos(pitch) * std::sin(yaw),
+            std::sin(pitch),
+            -std::cos(pitch) * std::cos(yaw));
+        Vec3 right = normalize(cross(Vec3(0,1,0), forward));
+        Vec3 upVec = cross(forward, right);
+
+        bool moved = false;
+
+        if (state[SDL_SCANCODE_W]) { camera = camera + forward * moveSpeed * dt; moved = true; }
+        if (state[SDL_SCANCODE_S]) { camera = camera - forward * moveSpeed * dt; moved = true; }
+        if (state[SDL_SCANCODE_A]) { camera = camera - right * moveSpeed * dt; moved = true; }
+        if (state[SDL_SCANCODE_D]) { camera = camera + right * moveSpeed * dt; moved = true; }
+        if (state[SDL_SCANCODE_Q]) { camera = camera + upVec * moveSpeed * dt; moved = true; }
+        if (state[SDL_SCANCODE_E]) { camera = camera - upVec * moveSpeed * dt; moved = true; }
+
+        if (state[SDL_SCANCODE_UP])    { pitch += rotateSpeed * dt; moved = true; }
+        if (state[SDL_SCANCODE_DOWN])  { pitch -= rotateSpeed * dt; moved = true; }
+        if (state[SDL_SCANCODE_LEFT])  { yaw   += rotateSpeed * dt; moved = true; }
+        if (state[SDL_SCANCODE_RIGHT]) { yaw   -= rotateSpeed * dt; moved = true; }
+
+        const double maxPitch = M_PI/2 - 0.01;
+        if (pitch > maxPitch) pitch = maxPitch;
+        if (pitch < -maxPitch) pitch = -maxPitch;
+
+        if (moved) {
+            render(camera, yaw, pitch);
         }
-        SDL_Delay(16);
+
+        SDL_Delay(1);
     }
 
     SDL_DestroyWindow(window);
