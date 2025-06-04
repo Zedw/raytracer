@@ -29,6 +29,8 @@ wine ./raytracer.exe
 ```
 
 Close the window to exit the program.
+Use the arrow keys to move the camera horizontally and forward/backward. Press
+`Q` to raise the camera and `E` to lower it.
 
 ## GitHub Releases
 
