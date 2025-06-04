@@ -4,12 +4,15 @@ SDL_CONFIG ?= sdl2-config
 CXXFLAGS ?= -std=c++17 $(shell $(SDL_CONFIG) --cflags)
 LDFLAGS ?= $(shell $(SDL_CONFIG) --libs)
 SRCS = $(wildcard src/*.cpp)
+IMGUI_SRCS = $(wildcard external/imgui/*.cpp) \
+            $(wildcard external/imgui/backends/*.cpp)
+INCLUDES = -Iexternal/imgui -Iexternal/imgui/backends
 TARGET = raytracer.exe
 
 all: $(TARGET) run copy-release
 
-$(TARGET): $(SRCS)
-	$(CXX) $(CXXFLAGS) $(SRCS) $(LDFLAGS) -o $(TARGET)
+$(TARGET): $(SRCS) $(IMGUI_SRCS)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ $(LDFLAGS) -o $@
 
 run: $(TARGET)
 	./$(TARGET)
