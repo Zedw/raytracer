@@ -32,6 +32,8 @@ Close the window to exit the program.
 Use `W`, `A`, `S`, `D` to move forward, left, back and right relative to the
 current view. `Q` moves up, `E` moves down. Hold multiple keys at once to move
 diagonally. Look around with the arrow keys (`←`/`→` yaw, `↑`/`↓` pitch).
+An ImGui panel lets you tweak the light color and direction while the window is
+running. The window can be resized freely and the sky now shows moving clouds.
 
 
 ## GitHub Releases
